@@ -7,3 +7,4 @@ pymongo==4.3.2
 pyqrcode==1.2.1
 waitress==2.1.2
 pypng==0.0.21
+qrcode==7.3.1
