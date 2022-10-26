@@ -12,6 +12,7 @@ Flights = None
 Luggage = None
 Complaint = None
 user_db = None
+qr_images= None
 
 def get_obj_id(id):
     return ObjectId(id)
@@ -28,6 +29,7 @@ def main():
     global qr_db
     global grid_fs
     global helpdesk_db
+    global qr_images
     connection_String = "mongodb+srv://Nikhil:newpassword@cluster0.2iqos.mongodb.net/Test?retryWrites=true&w=majority"
     client = pymongo.MongoClient(connection_String)
     #client = pymongo.MongoClient(host = 'localhost', port = 27017)
@@ -42,6 +44,7 @@ def main():
     user_db = db.user_db
     qr_db = db.QRs
     helpdesk_db = db.Helpdesk
+    qr_images = db.qr_images
     grid_fs = gridfs.GridFS(db)
 
 main()

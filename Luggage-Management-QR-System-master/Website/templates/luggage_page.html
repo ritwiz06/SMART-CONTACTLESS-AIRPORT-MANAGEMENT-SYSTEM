@@ -94,11 +94,12 @@ li a.active {
                 <p>Dimensions     : {{bag['dimension']['height']}} x {{bag['dimension']['width']}} x {{bag['dimension']['breadth']}} in inches</p>
                 <footer class="blockquote-footer">Container no  : {{bag['container_no']}}</footer>
             </blockquote>
-        <button href="" class="btn btn-primary" onclick="document.getElementById('qr_image').src = 'qr_img_{{bag['_id']}}.png'" style = "margin-top: 10px;" data-toggle="modal" data-target="#exampleModal">Generate QR Code</button>
+                <button href="" class="btn btn-primary" onclick="document.getElementById('qr_image').src = 'data:image/png;base64,{{ bag['qr_data'] }}'" style = "margin-top: 10px;" data-toggle="modal" data-target="#exampleModal">Generate QR Code</button>
             </div>
         </div>
     </div>
     {% endfor %}
+
     
     <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">

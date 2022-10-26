@@ -3,6 +3,10 @@ import mongo_api
 import qr_api
 import helpdesk_api
 import knapsack
+import io
+import qrcode
+from PIL import Image
+import base64
 
 generator = True
 
@@ -16,7 +20,17 @@ app.config['PROPAGATE_EXCEPTIONS'] = True
 @app.route('/luggage_of_<fname>', methods = ['GET'])
 def luggage_page(fname):
     luggage_data = list(mongo_api.Luggage.find({'flight_id': mongo_api.get_obj_id(fname)}))
-    return render_template('luggage_page.html', luggage = luggage_data, fname = fname)
+    qr_images = list(mongo_api.qr_images.find({'flight_id': fname}))
+
+    for bag in luggage_data:
+        for qr in qr_images:
+            if str(bag['_id'])==str(qr['qr_id']):
+                bag['qr_data'] = qr['data'].decode('utf-8')
+
+    #print(luggage_data)
+    #print(qr_images)
+
+    return render_template('luggage_page.html', luggage = luggage_data, fname = fname, qr_images=qr_images)
 
 @app.route('/add_luggage_<fname>', methods = ['GET', 'POST'])
 def add_luggage(fname):
@@ -57,7 +71,7 @@ def add_luggage(fname):
         }
         mongo_api.Luggage.insert_one(luggage)
         luggage_id = str(mongo_api.Luggage.find_one(luggage)['_id'])
-        _name = qr_api.generate_qr(luggage_id)
+        qr_api.save_qr_to_mongo(luggage_id, fname)
         
         # id = mongo_api.grid_fs.put()
         # metadata = {
@@ -218,6 +232,34 @@ def call_knapsack(id):
             },upsert=True
         )
     return redirect(url_for('luggage_page', fname = id))
+
+@app.route('/test_qr')
+def save_qr():
+    img = qrcode.make('test text')
+    img_bytes = io.BytesIO()
+    img.save(img_bytes, format='PNG')
+    print(type(img))
+    print(img_bytes)
+
+    encoded_img_data = base64.b64encode(img_bytes.getvalue())
+
+    image = {
+        'data': encoded_img_data
+    }
+
+    print(image)
+
+    image_id = mongo_api.qr_images.insert_one(image).inserted_id
+    return "<h1> Qr saved !</h1>"
+
+@app.route('/read_qr')
+def read_qr():
+    img = mongo_api.qr_images.find_one()
+    pil_img = img['data']#.decode('utf-8')
+
+    print(pil_img)
+
+    return f'<h1> QR: </h1><img src="data:image/png;base64,{ pil_img }" alt="error">  </img>'
 
 
 mode="production"
